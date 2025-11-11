@@ -172,9 +172,8 @@ const stopwatch = createStopwatch({ label: "sync-users" });
 stopwatch.log({ records: 42 });
 
 await withTiming("refresh-cache", async () => fetchCache());
-const { result, durationMs } = await measureAsync(
-    "bill-run",
-    () => processBills()
+const { result, durationMs } = await measureAsync("bill-run", () =>
+    processBills()
 );
 
 const profiler = new Profiler();
@@ -266,4 +265,4 @@ Validator.isLocalPhone("11 5555-7777", "es-AR");
 
 ## License / Licencia
 
-MIT © 2024 Nubi Lab
+MIT © 2024 Sebastián Martinez
