@@ -1,4 +1,4 @@
-# nubi-lab-utils
+# @sebamar88/utils
 
 **EN:** Modern TypeScript utilities for Nubi Lab services: an isomorphic **HttpClient**, structured logging/profiling helpers, and ready-to-use modules (`DateUtils`, `StringUtils`, `StorageUtils`, etc.).  
 **ES:** Colección moderna de utilidades TypeScript para los servicios de Nubi Lab: **HttpClient** isomórfico, logging/profiling estructurado y helpers listos (`DateUtils`, `StringUtils`, `StorageUtils`, etc.).
@@ -21,9 +21,9 @@
 ## Installation / Instalación
 
 ```bash
-npm install nubi-lab-utils
+npm install @sebamar88/utils
 # or / o
-pnpm add nubi-lab-utils
+pnpm add @sebamar88/utils
 ```
 
 ## Quick Start / Inicio rápido
@@ -34,11 +34,11 @@ import {
     createLogger,
     DateUtils,
     StringUtils,
-} from "nubi-lab-utils";
+} from "@sebamar88/utils";
 
 const http = new HttpClient({
     baseUrl: "https://api.my-service.com",
-    defaultHeaders: { "X-Team": "nubi-lab" },
+    defaultHeaders: { "X-Team": "@sebamar88" },
     locale: "es",
     errorMessages: {
         es: { 418: "Soy una tetera ☕" },
@@ -78,7 +78,7 @@ Each `request` (and `get`, `post`, `put`, `patch`, `delete`) accepts / Cada requ
 -   Native `RequestInit` fields (`headers`, `signal`, etc.).
 
 ```ts
-import { HttpError } from "nubi-lab-utils";
+import { HttpError } from "@sebamar88/utils";
 
 try {
     await http.get("/users");
@@ -98,7 +98,7 @@ import {
     createStopwatch,
     StorageUtils,
     EnvManager,
-} from "nubi-lab-utils";
+} from "@sebamar88/utils";
 
 const logger = createLogger({ namespace: "payments", level: "debug" });
 
@@ -124,4 +124,4 @@ const apiKey = EnvManager.get("API_KEY", { required: true });
 
 ## License / Licencia
 
-MIT © Nubi Lab
+MIT © Sebastián Martinez
