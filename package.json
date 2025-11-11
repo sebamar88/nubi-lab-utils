@@ -1,12 +1,12 @@
 {
     "name": "@sebamar88/utils",
-    "version": "0.1.4",
+    "version": "0.1.3",
     "type": "module",
     "description": "Modern TypeScript utility toolkit for the Nubi Lab team (HTTP client, logging, helpers)",
     "imports": {
-        "#core/": "./dist/utils/core/",
-        "#utils/": "./dist/utils/",
-        "#helpers/": "./dist/utils/helpers/"
+        "#core/*": "./dist/utils/core/*",
+        "#utils/*": "./dist/utils/*",
+        "#helpers/*": "./dist/utils/helpers/*"
     },
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
@@ -20,6 +20,7 @@
         "build": "tsc -p tsconfig.json",
         "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true });\"",
         "lint": "tsc --noEmit",
+        "test": "npm run lint && npm run build && node --test tests/**/*.test.js",
         "prepare": "npm run build",
         "prepublishOnly": "npm run lint && npm run clean && npm run build",
         "publish": "npm publish --access public"

@@ -1,7 +1,7 @@
 # @sebamar88/utils
 
-**EN:** Modern TypeScript utilities for Nubi Lab services: an isomorphic **HttpClient**, structured logging/profiling helpers, and ready-to-use modules (`DateUtils`, `StringUtils`, `StorageUtils`, etc.).  
-**ES:** Colección moderna de utilidades TypeScript para los servicios de Nubi Lab: **HttpClient** isomórfico, logging/profiling estructurado y helpers listos (`DateUtils`, `StringUtils`, `StorageUtils`, etc.).
+**EN:** Modern TypeScript utilities for Nubi Lab services: an isomorphic **HttpClient**, structured logging/profiling helpers, and ready-to-use modules (`DateUtils`, `StringUtils`, `StorageManager`, etc.).  
+**ES:** Colección moderna de utilidades TypeScript para los servicios de Nubi Lab: **HttpClient** isomórfico, logging/profiling estructurado y helpers listos (`DateUtils`, `StringUtils`, `StorageManager`, etc.).
 
 ---
 
@@ -96,7 +96,7 @@ import {
     createLogger,
     withTiming,
     createStopwatch,
-    StorageUtils,
+    StorageManager,
     EnvManager,
 } from "@sebamar88/utils";
 
@@ -108,14 +108,93 @@ await withTiming("settlements", async () => {
     stopwatch.log({ records: batch.length });
 });
 
-StorageUtils.safeSetItem("token", "abc123");
-const apiKey = EnvManager.get("API_KEY", { required: true });
+const storage = new StorageManager();
+storage.set("token", "abc123", 60_000);
+const env = new EnvManager();
+const apiKey = env.require("API_KEY");
 ```
 
 -   `DateUtils`: **EN** safe parsing, add/subtract, configurable diffs, `isSameDay`. **ES** parseo seguro, sumas/restas, diferencias configurables e `isSameDay`.
 -   `StringUtils`: **EN** slugify, capitalize, masking, interpolation, query strings. **ES** slugify, capitalización, máscaras, interpolación, query strings.
 -   `Validator`: **EN** lightweight synchronous validators. **ES** validadores sincrónicos livianos.
--   `StorageUtils`: **EN** safe wrappers for `localStorage`/`sessionStorage`. **ES** adaptadores seguros para storage del navegador.
+-   `StorageManager`: **EN** safe wrapper for `localStorage`/`sessionStorage`. **ES** adaptador seguro para storage del navegador.
+
+## Helper Reference / Referencia de helpers
+
+### DateUtils
+
+-   **parse / isValid**: **EN** accept `Date`, ISO strings, timestamps; return normalized Date or boolean. **ES** aceptan `Date`, string ISO o timestamp y devuelven Date normalizada o booleano.
+-   **toISODate**: **EN** format to `YYYY-MM-DD` without timezone surprises. **ES** formatea como `YYYY-MM-DD` evitando problemas de zona horaria.
+-   **startOfDay / endOfDay**: **EN** clamp hours to `00:00:00.000` or `23:59:59.999`. **ES** ajusta horas al inicio o final del día.
+-   **add**: **EN** add duration (`days`, `hours`, `minutes`, `seconds`, `milliseconds`). **ES** suma duraciones con granularidad configurable.
+-   **diff / diffInDays**: **EN** difference between two dates with unit + rounding + absolute options. **ES** diferencia entre fechas con unidad, redondeo y valor absoluto configurable.
+-   **isSameDay / isBefore / isAfter**: **EN** compare normalized dates. **ES** compara fechas normalizadas.
+-   **format**: **EN** locale-aware short date (`es-AR` default). **ES** formatea con `toLocaleDateString`.
+
+```ts
+DateUtils.isSameDay("2024-10-10", new Date());
+DateUtils.diff(new Date("2024-01-01"), Date.now(), {
+    unit: "days",
+    rounding: "round",
+    absolute: true,
+});
+```
+
+### StringUtils
+
+-   **removeDiacritics / compactWhitespace**: **EN** normalize text for comparisons or rendering. **ES** normalizan texto para comparaciones o UI.
+-   **slugify**: **EN** create URL-friendly IDs with configurable separator/lowercase. **ES** genera slugs configurables.
+-   **capitalize / capitalizeWords**: **EN/ES** capitaliza respetando locale.
+-   **truncate**: **EN** trims long strings with optional ellipsis + word boundaries. **ES** recorta textos largos respetando palabras.
+-   **mask**: **EN** hide sensitive parts with custom `maskChar`, `visibleStart`, `visibleEnd`. **ES** oculta secciones sensibles con máscara configurable.
+-   **interpolate**: **EN** replace `{{placeholders}}` with nested object values (strict/fallback/transform). **ES** interpolación con soporte para rutas y validación.
+-   **initials**: **EN** generate up to `limit` initials. **ES** genera iniciales rápido.
+-   **toQueryString**: **EN** serialize nested objects/arrays with formats (`repeat`, `bracket`, `comma`). **ES** serializa objetos y arrays a query strings.
+
+```ts
+StringUtils.mask("4242424242424242", { visibleStart: 4, visibleEnd: 2 });
+StringUtils.toQueryString({
+    page: 1,
+    tags: ["lab", "team"],
+    filters: { status: "active" },
+});
+```
+
+### StorageManager
+
+-   **StorageManager**: **EN** wraps any `Storage` (default `localStorage`) with safe JSON parsing and TTL support. **ES** envuelve cualquier `Storage` con parseo seguro y expiración opcional.
+-   **set/get/remove/clear**: **EN** persist typed values, remove expired entries automatically. **ES** guarda valores tipados y limpia expirados.
+
+```ts
+const storage = new StorageManager(sessionStorage);
+storage.set("session", { token: "abc" }, 60_000);
+const session = storage.get<{ token: string }>("session");
+```
+
+### EnvManager
+
+-   **get / require**: **EN** read ENV vars from Node (via `process.env`) or Vite-style browser builds (`import.meta.env`). **ES** lee env vars en Node o navegador y marca obligatorias con `require`.
+-   **isProd**: **EN** check `NODE_ENV`/`MODE`. **ES** detecta modo producción.
+
+```ts
+const env = new EnvManager();
+const apiBase = env.require("API_BASE_URL");
+if (env.isProd()) {
+    // toggle prod-only behavior
+}
+```
+
+### Validator
+
+-   **Identity**: **EN** `isEmail`, `isUUIDv4`, `isDni`, `isCuit`, `isCbu`. **ES** validaciones de identidad y banking locales.
+-   **Phones**: **EN** `isInternationalPhone`, `isPhoneE164`, `isLocalPhone(locale)`. **ES** valida teléfonos internacionales y locales con patrones por país.
+-   **Security**: **EN** `isStrongPassword`, `isOneTimeCode`. **ES** contraseñas fuertes y códigos OTP.
+-   **General**: **EN** `isUrl`, `isEmpty`, length guards, regex matcher, `isDateRange`. **ES** helpers generales para formularios.
+
+```ts
+Validator.isStrongPassword("NubiLab!2024", { minLength: 10 });
+Validator.isLocalPhone("11 5555-7777", "es-AR");
+```
 
 ## Compatibility / Compatibilidad
 
@@ -124,4 +203,4 @@ const apiKey = EnvManager.get("API_KEY", { required: true });
 
 ## License / Licencia
 
-MIT © Sebastián Martinez
+MIT © 2024 Nubi Lab
