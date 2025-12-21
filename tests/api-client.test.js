@@ -110,3 +110,85 @@ test("ApiClient rejects with timeout errors when exceeding deadline", async () =
     }
   );
 });
+
+
+test("ApiClient.getList returns paginated response with correct structure", async () => {
+  let capturedUrl = "";
+  const fetchImpl = async (url) => {
+    capturedUrl = url;
+    return jsonResponse({
+      data: [
+        { id: 1, name: "User 1" },
+        { id: 2, name: "User 2" },
+      ],
+      pagination: {
+        page: 1,
+        limit: 10,
+        total: 25,
+        totalPages: 3,
+        hasNextPage: true,
+        hasPreviousPage: false,
+      },
+    });
+  };
+
+  const client = new ApiClient({
+    baseUrl: "https://api.example.com",
+    fetchImpl,
+    locale: "en",
+  });
+
+  const result = await client.getList("/users", {
+    pagination: { page: 1, limit: 10 },
+    sort: { field: "name", order: "asc" },
+  });
+
+  assert.deepEqual(result.data, [
+    { id: 1, name: "User 1" },
+    { id: 2, name: "User 2" },
+  ]);
+  assert.equal(result.pagination.page, 1);
+  assert.equal(result.pagination.limit, 10);
+  assert.equal(result.pagination.total, 25);
+  assert.equal(result.pagination.totalPages, 3);
+  assert.equal(result.pagination.hasNextPage, true);
+  assert.equal(result.pagination.hasPreviousPage, false);
+  assert.match(capturedUrl, /page=1/);
+  assert.match(capturedUrl, /limit=10/);
+  assert.match(capturedUrl, /sort=name/);
+  assert.match(capturedUrl, /order=asc/);
+});
+
+test("ApiClient.getList merges pagination params with existing searchParams", async () => {
+  let capturedUrl = "";
+  const fetchImpl = async (url) => {
+    capturedUrl = url;
+    return jsonResponse({
+      data: [],
+      pagination: {
+        page: 1,
+        limit: 5,
+        total: 0,
+        totalPages: 0,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      },
+    });
+  };
+
+  const client = new ApiClient({
+    baseUrl: "https://api.example.com",
+    fetchImpl,
+    locale: "en",
+  });
+
+  await client.getList("/users", {
+    pagination: { page: 2, limit: 5 },
+    filters: { status: "active", role: "admin" },
+  });
+
+  assert.match(capturedUrl, /page=2/);
+  assert.match(capturedUrl, /limit=5/);
+  assert.match(capturedUrl, /status=active/);
+  assert.match(capturedUrl, /role=admin/);
+});

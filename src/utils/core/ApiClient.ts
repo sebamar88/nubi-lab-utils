@@ -1,6 +1,8 @@
 import crossFetch from "cross-fetch";
 import { Logger } from "#core/Logger.js";
 import { StringUtils } from "#helpers/StringUtils.js";
+import { RetryPolicy, CircuitBreaker, RetryConfig, CircuitBreakerConfig } from "#core/RetryPolicy.js";
+import { ResponseValidator, ValidationSchema } from "#core/ResponseValidator.js";
 
 export type QueryParamValue = string | number | boolean | null | undefined;
 export type QueryParam =
@@ -26,6 +28,8 @@ export interface ApiClientConfig {
     timeoutMs?: number;
     interceptors?: ApiClientInterceptors;
     logger?: Logger;
+    retryPolicy?: RetryConfig;
+    circuitBreaker?: CircuitBreakerConfig;
 }
 
 export interface RequestOptions<TBody = unknown>
@@ -34,6 +38,42 @@ export interface RequestOptions<TBody = unknown>
     body?: FormData | string | Blob | ArrayBuffer | Record<string, unknown>;
     errorLocale?: Locale;
     timeoutMs?: number;
+    validateResponse?: ValidationSchema;
+    skipRetry?: boolean;
+}
+
+export interface SortParams {
+    field?: string;
+    order?: "asc" | "desc";
+}
+
+export interface PaginationParams {
+    page?: number;
+    limit?: number;
+    offset?: number;
+}
+
+export interface FilterParams {
+    [key: string]: QueryParam;
+}
+
+export interface ListOptions<TFilter extends FilterParams = FilterParams>
+    extends Omit<RequestOptions, "searchParams"> {
+    pagination?: PaginationParams;
+    sort?: SortParams;
+    filters?: TFilter;
+}
+
+export interface PaginatedResponse<T> {
+    data: T[];
+    pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
+        hasNextPage: boolean;
+        hasPreviousPage: boolean;
+    };
 }
 
 export class ApiError extends Error {
@@ -101,6 +141,8 @@ export class ApiClient {
     private readonly errorMessages: Partial<
         Record<Locale, Partial<Record<number, string>>>
     >;
+    private readonly retryPolicy: RetryPolicy;
+    private readonly circuitBreaker: CircuitBreaker;
 
     constructor({
         baseUrl,
@@ -111,6 +153,8 @@ export class ApiClient {
         timeoutMs = 15000,
         interceptors,
         logger,
+        retryPolicy,
+        circuitBreaker,
     }: ApiClientConfig) {
         this.baseUrl = new URL(baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`);
         this.headers = defaultHeaders ?? {};
@@ -124,6 +168,8 @@ export class ApiClient {
         this.timeoutMs = timeoutMs;
         this.interceptors = interceptors;
         this.logger = logger;
+        this.retryPolicy = new RetryPolicy(retryPolicy);
+        this.circuitBreaker = new CircuitBreaker(circuitBreaker);
     }
 
     // -------------------------
@@ -150,99 +196,166 @@ export class ApiClient {
     }
 
     // -------------------------
-    // Core request flow
+    // Paginated list requests
     // -------------------------
+    async getList<T, TFilter extends FilterParams = FilterParams>(
+        path: string,
+        options?: ListOptions<TFilter>
+    ): Promise<PaginatedResponse<T>> {
+        const searchParams: Record<string, QueryParam> = {};
+
+        // Add pagination params
+        if (options?.pagination) {
+            if (options.pagination.page !== undefined) {
+                searchParams.page = options.pagination.page;
+            }
+            if (options.pagination.limit !== undefined) {
+                searchParams.limit = options.pagination.limit;
+            }
+            if (options.pagination.offset !== undefined) {
+                searchParams.offset = options.pagination.offset;
+            }
+        }
+
+        // Add sort params
+        if (options?.sort) {
+            if (options.sort.field !== undefined) {
+                searchParams.sort = options.sort.field;
+            }
+            if (options.sort.order !== undefined) {
+                searchParams.order = options.sort.order;
+            }
+        }
+
+        // Add filter params
+        if (options?.filters) {
+            Object.assign(searchParams, options.filters);
+        }
+
+        const { pagination, sort, filters, ...requestOptions } = options ?? {};
+
+        return this.request<PaginatedResponse<T>>(path, {
+            ...requestOptions,
+            method: "GET",
+            searchParams,
+        });
+    }
     async request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-        let url = this.buildUrl(path, options.searchParams);
         const {
-            headers: overrideHeaders,
-            body,
-            timeoutMs,
-            errorLocale,
-            ...rest
+            validateResponse,
+            skipRetry,
+            ...requestOptions
         } = options;
 
-        const headers = this.mergeHeaders(overrideHeaders);
-        const preparedBody = this.prepareBody(body);
+        const executeRequest = async (): Promise<T> => {
+            return this.circuitBreaker.execute(async () => {
+                let url = this.buildUrl(path, requestOptions.searchParams);
+                const {
+                    headers: overrideHeaders,
+                    body,
+                    timeoutMs,
+                    errorLocale,
+                    ...rest
+                } = requestOptions;
 
-        if (preparedBody && !(body instanceof FormData)) {
-            headers.set("Content-Type", "application/json");
-        }
+                const headers = this.mergeHeaders(overrideHeaders);
+                const preparedBody = this.prepareBody(body);
 
-        const controller = new AbortController();
-        const signal = controller.signal;
-        const timeout = timeoutMs ?? this.timeoutMs;
+                if (preparedBody && !(body instanceof FormData)) {
+                    headers.set("Content-Type", "application/json");
+                }
 
-        let init: RequestInit = {
-            ...rest,
-            headers,
-            body: preparedBody,
-            signal,
+                const controller = new AbortController();
+                const signal = controller.signal;
+                const timeout = timeoutMs ?? this.timeoutMs;
+
+                let init: RequestInit = {
+                    ...rest,
+                    headers,
+                    body: preparedBody,
+                    signal,
+                };
+
+                // Request interceptor
+                if (this.interceptors?.request)
+                    [url, init] = await this.interceptors.request(url, init);
+
+                this.logger?.debug("HTTP Request", { method: rest.method, url, body });
+
+                try {
+                    const response = await this.withTimeout(
+                        this.fetchImpl(url, init),
+                        timeout
+                    );
+
+                    // Response interceptor
+                    const finalResponse = this.interceptors?.response
+                        ? await this.interceptors.response(response)
+                        : response;
+
+                    if (!finalResponse.ok) {
+                        throw await this.toApiError(finalResponse, errorLocale);
+                    }
+
+                    if (
+                        finalResponse.status === 204 ||
+                        !finalResponse.headers.get("content-length")
+                    ) {
+                        return undefined as T;
+                    }
+
+                    const contentType = finalResponse.headers.get("content-type") || "";
+                    let data: T;
+
+                    if (/json/i.test(contentType)) {
+                        data = (await finalResponse.json()) as T;
+                    } else {
+                        data = (await finalResponse.text()) as unknown as T;
+                    }
+
+                    // Validate response if schema provided
+                    if (validateResponse) {
+                        const errors = ResponseValidator.validate(data, validateResponse);
+                        if (errors.length > 0) {
+                            throw new Error(
+                                `Response validation failed: ${errors.map((e) => e.message).join(", ")}`
+                            );
+                        }
+                    }
+
+                    this.logger?.debug("HTTP Response", {
+                        status: finalResponse.status,
+                        url,
+                        data,
+                    });
+
+                    return data;
+                } catch (err: any) {
+                    if (err.name === "AbortError") {
+                        throw new ApiError(
+                            408,
+                            "Timeout",
+                            "Request timeout",
+                            null,
+                            true
+                        );
+                    }
+                    this.logger?.error(
+                        "Request failed",
+                        { path, method: rest.method },
+                        err
+                    );
+                    throw err;
+                }
+            });
         };
 
-        // Request interceptor
-        if (this.interceptors?.request)
-            [url, init] = await this.interceptors.request(url, init);
-
-        this.logger?.debug("HTTP Request", { method: rest.method, url, body });
-
-        try {
-            const response = await this.withTimeout(
-                this.fetchImpl(url, init),
-                timeout
-            );
-
-            // Response interceptor
-            const finalResponse = this.interceptors?.response
-                ? await this.interceptors.response(response)
-                : response;
-
-            if (!finalResponse.ok) {
-                throw await this.toApiError(finalResponse, errorLocale);
-            }
-
-            if (
-                finalResponse.status === 204 ||
-                !finalResponse.headers.get("content-length")
-            ) {
-                return undefined as T;
-            }
-
-            const contentType = finalResponse.headers.get("content-type") || "";
-            if (/json/i.test(contentType)) {
-                const data = (await finalResponse.json()) as T;
-                this.logger?.debug("HTTP Response", {
-                    status: finalResponse.status,
-                    url,
-                    data,
-                });
-                return data;
-            }
-
-            const text = (await finalResponse.text()) as unknown as T;
-            this.logger?.debug("HTTP Response", {
-                status: finalResponse.status,
-                url,
-                text,
-            });
-            return text;
-        } catch (err: any) {
-            if (err.name === "AbortError") {
-                throw new ApiError(
-                    408,
-                    "Timeout",
-                    "Request timeout",
-                    null,
-                    true
-                );
-            }
-            this.logger?.error(
-                "Request failed",
-                { path, method: rest.method },
-                err
-            );
-            throw err;
+        // Use retry policy unless explicitly skipped
+        if (skipRetry) {
+            return executeRequest();
         }
+
+        return this.retryPolicy.execute(executeRequest);
     }
 
     // -------------------------

@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { generateTypesFromEndpoint } from "./type-generator.js";
 
 const DEFAULT_API_DIR = "api";
 const DEFAULT_HOOKS_DIR = "hooks";
@@ -27,16 +28,22 @@ export async function runCli(argv: string[]): Promise<void> {
     }
 
     const [command, target, ...rest] = argv;
-    if (command !== "create") {
+
+    if (command === "create") {
+        await handleCreate(target, rest);
+    } else if (command === "types") {
+        await handleTypes(target, rest);
+    } else {
         console.error(`\u001b[31mUnknown command:\u001b[0m ${command}`);
         printHelp();
         process.exit(1);
     }
-
-    await handleCreate(target, rest);
 }
 
-async function handleCreate(resource: string | undefined, args: string[]): Promise<void> {
+async function handleCreate(
+    resource: string | undefined,
+    args: string[]
+): Promise<void> {
     if (!resource || resource.startsWith("--")) {
         console.error("\u001b[31mMissing resource name.\u001b[0m");
         printCreateHelp();
@@ -59,6 +66,32 @@ async function handleCreate(resource: string | undefined, args: string[]): Promi
     };
 
     await createResourceFiles(config);
+}
+
+async function handleTypes(
+    endpoint: string | undefined,
+    args: string[]
+): Promise<void> {
+    if (!endpoint) {
+        console.error("\u001b[31mMissing endpoint URL.\u001b[0m");
+        printTypesHelp();
+        process.exit(1);
+    }
+
+    const flags = parseTypesFlags(args);
+
+    await generateTypesFromEndpoint({
+        endpoint,
+        method: (flags.method ?? "GET") as
+            | "GET"
+            | "POST"
+            | "PUT"
+            | "PATCH"
+            | "DELETE",
+        output: flags.output,
+        name: flags.name,
+        headers: flags.headers,
+    });
 }
 
 function parseCreateFlags(args: string[]): CreateFlags {
@@ -102,6 +135,58 @@ function parseCreateFlags(args: string[]): CreateFlags {
     return flags;
 }
 
+function parseTypesFlags(args: string[]): {
+    method?: string;
+    output?: string;
+    name?: string;
+    headers: Record<string, string>;
+} {
+    const flags: {
+        method?: string;
+        output?: string;
+        name?: string;
+        headers: Record<string, string>;
+    } = { headers: {} };
+
+    for (const arg of args) {
+        if (!arg.startsWith("--")) {
+            console.warn(`Ignoring unexpected argument "${arg}".`);
+            continue;
+        }
+
+        const withoutDashes = arg.slice(2);
+        const [rawKey, rawValue] = withoutDashes.split("=", 2);
+        const key = rawKey.trim();
+
+        if (rawValue === undefined) {
+            console.warn(`Flag "--${key}" requires a value; ignoring.`);
+            continue;
+        }
+
+        switch (key) {
+            case "method":
+                flags.method = rawValue.toUpperCase();
+                break;
+            case "output":
+                flags.output = rawValue;
+                break;
+            case "name":
+                flags.name = rawValue;
+                break;
+            case "header":
+                const [headerKey, headerValue] = rawValue.split(":", 2);
+                if (headerKey && headerValue) {
+                    flags.headers[headerKey.trim()] = headerValue.trim();
+                }
+                break;
+            default:
+                console.warn(`Unrecognized flag "--${key}"; ignoring.`);
+        }
+    }
+
+    return flags;
+}
+
 async function createResourceFiles(config: ResourceConfig): Promise<void> {
     const { apiDir, hooksDir, force, resourceSegments, route } = config;
     const lastSegment = resourceSegments[resourceSegments.length - 1];
@@ -111,8 +196,16 @@ async function createResourceFiles(config: ResourceConfig): Promise<void> {
     const resolvedRoute = route.startsWith("/") ? route : `/${route}`;
     const resourceKey = resourceSegments.join("/");
 
-    const apiResourceDir = path.join(process.cwd(), apiDir, ...resourceSegments);
-    const hooksResourceDir = path.join(process.cwd(), hooksDir, ...resourceSegments);
+    const apiResourceDir = path.join(
+        process.cwd(),
+        apiDir,
+        ...resourceSegments
+    );
+    const hooksResourceDir = path.join(
+        process.cwd(),
+        hooksDir,
+        ...resourceSegments
+    );
     await fs.mkdir(apiResourceDir, { recursive: true });
     await fs.mkdir(hooksResourceDir, { recursive: true });
 
@@ -148,7 +241,9 @@ async function createResourceFiles(config: ResourceConfig): Promise<void> {
         force
     );
 
-    console.log(`Scaffolded "${resourceKey}" under "${apiDir}" and "${hooksDir}".`);
+    console.log(
+        `Scaffolded "${resourceKey}" under "${apiDir}" and "${hooksDir}".`
+    );
 }
 
 function buildImportPath(fromDir: string, toDir: string): string {
@@ -160,7 +255,11 @@ function buildImportPath(fromDir: string, toDir: string): string {
     return relativePath;
 }
 
-async function writeFileIfAllowed(filePath: string, content: string, force: boolean): Promise<void> {
+async function writeFileIfAllowed(
+    filePath: string,
+    content: string,
+    force: boolean
+): Promise<void> {
     try {
         await fs.access(filePath);
         if (!force) {
@@ -224,7 +323,8 @@ function buildHooksTemplate(options: {
     resourceKey: string;
     apiImportPath: string;
 }): string {
-    const { pascalPlural, pascalSingular, resourceKey, apiImportPath } = options;
+    const { pascalPlural, pascalSingular, resourceKey, apiImportPath } =
+        options;
 
     return `import {
     useMutation,
@@ -352,7 +452,10 @@ function toPascalCase(value: string): string {
     return value
         .split(/[^a-zA-Z0-9]/)
         .filter(Boolean)
-        .map((segment) => segment[0].toUpperCase() + segment.slice(1).toLowerCase())
+        .map(
+            (segment) =>
+                segment[0].toUpperCase() + segment.slice(1).toLowerCase()
+        )
         .join("");
 }
 
@@ -374,8 +477,9 @@ function printHelp(): void {
 
 Commands
   create <resource>         Scaffold API + hooks for a resource.
+  types <endpoint>          Generate TypeScript types from API response.
 
-Run \`sutils create --help\` for details.
+Run \`sutils create --help\` or \`sutils types --help\` for details.
 `);
 }
 
@@ -387,6 +491,22 @@ Options
   --hooksDir=<dir>          Base directory for hooks (default: hooks).
   --route=</path>           API route path (default: derived from resource).
   --force                   Overwrite existing files.
+`);
+}
+
+function printTypesHelp(): void {
+    console.log(`sutils types <endpoint> [options]
+
+Options
+  --method=<METHOD>         HTTP method (default: GET).
+  --output=<file>           Output file path (default: types.ts).
+  --name=<name>             Type name (default: ApiResponse).
+  --header=<key:value>      Custom header (can be used multiple times).
+
+Examples
+  sutils types https://api.example.com/users
+  sutils types https://api.example.com/users --output=user-types.ts --name=User
+  sutils types https://api.example.com/users --method=POST --header=Authorization:Bearer\ token
 `);
 }
 
