@@ -151,7 +151,8 @@
         "typescript",
         "http-client",
         "logger",
-        "utilities"
+        "utilities",
+        "formerly @sebamar88/utils"
     ],
     "repository": {
         "type": "git",

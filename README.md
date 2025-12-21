@@ -1,4 +1,6 @@
-# @sebamar88/utils
+# @bolt/core
+
+> **Previously known as:** `@sebamar88/utils` (v0.1.9 and earlier)
 
 **EN:** Modern TypeScript utilities: an isomorphic **ApiClient**, structured logging/profiling helpers, and ready-to-use modules (`DateUtils`, `StringUtils`, `StorageManager`, etc.).  
 **ES:** Colección moderna de utilidades TypeScript: **ApiClient** isomórfico, logging/profiling estructurado y helpers listos (`DateUtils`, `StringUtils`, `StorageManager`, etc.).
@@ -26,9 +28,9 @@
 **ES:** Instalá el paquete globalmente para usar la herramienta CLI (`sutils`) desde cualquier lugar.
 
 ```bash
-npm install -g @sebamar88/utils
+npm install -g @bolt/core
 # or / o
-pnpm add -g @sebamar88/utils
+pnpm add -g @bolt/core
 ```
 
 **EN:** After global installation, you can use the `sutils` command:  
@@ -45,11 +47,11 @@ sutils types https://api.example.com/users
 **ES:** Instalá como dependencia del proyecto para usar todos los utilities en tu aplicación.
 
 ```bash
-npm install @sebamar88/utils
+npm install @bolt/core
 # or / o
-pnpm add @sebamar88/utils
+pnpm add @bolt/core
 # or / o
-yarn add @sebamar88/utils
+yarn add @bolt/core
 ```
 
 ### Modular Installation / Instalación Modular
@@ -61,114 +63,101 @@ yarn add @sebamar88/utils
 
 ```ts
 // HTTP Client
-import { ApiClient, createApiClient } from "@sebamar88/utils/api-client";
+import { ApiClient, createApiClient } from "@bolt/core/api-client";
 
 // Retry & Circuit Breaker
-import { RetryPolicy, CircuitBreaker } from "@sebamar88/utils/retry-policy";
+import { RetryPolicy, CircuitBreaker } from "@bolt/core/retry-policy";
 
 // Response Validation
-import { ResponseValidator } from "@sebamar88/utils/response-validator";
+import { ResponseValidator } from "@bolt/core/response-validator";
 
 // Logging
-import { Logger, createLogger } from "@sebamar88/utils/logger";
+import { Logger, createLogger } from "@bolt/core/logger";
 
 // Profiling
-import { Profiler } from "@sebamar88/utils/profiler";
+import { Profiler } from "@bolt/core/profiler";
 
 // Debug Utilities
-import {
-    createStopwatch,
-    withTiming,
-    measureAsync,
-} from "@sebamar88/utils/debug";
+import { createStopwatch, withTiming, measureAsync } from "@bolt/core/debug";
 
 // Request Caching
-import { RequestCache } from "@sebamar88/utils/request-cache";
+import { RequestCache } from "@bolt/core/request-cache";
 
 // Rate Limiting
-import {
-    RateLimiter,
-    SlidingWindowRateLimiter,
-} from "@sebamar88/utils/rate-limiter";
+import { RateLimiter, SlidingWindowRateLimiter } from "@bolt/core/rate-limiter";
 
 // Request Deduplication
-import { RequestDeduplicator } from "@sebamar88/utils/request-deduplicator";
+import { RequestDeduplicator } from "@bolt/core/request-deduplicator";
 
 // Error Boundary
 import {
     ErrorBoundary,
     getGlobalErrorBoundary,
-} from "@sebamar88/utils/error-boundary";
+} from "@bolt/core/error-boundary";
 ```
 
 #### Helper Modules / Módulos Helpers
 
 ```ts
 // Date Utilities
-import { DateUtils } from "@sebamar88/utils/date-utils";
+import { DateUtils } from "@bolt/core/date-utils";
 
 // String Utilities
-import { StringUtils } from "@sebamar88/utils/string-utils";
+import { StringUtils } from "@bolt/core/string-utils";
 
 // Validation
-import { Validator } from "@sebamar88/utils/validator";
+import { Validator } from "@bolt/core/validator";
 
 // Environment Manager
-import { EnvManager } from "@sebamar88/utils/env-manager";
+import { EnvManager } from "@bolt/core/env-manager";
 
 // Storage Utilities
-import { StorageUtils } from "@sebamar88/utils/storage-utils";
+import { StorageUtils } from "@bolt/core/storage-utils";
 
 // File Upload
-import { FileUploadHelper } from "@sebamar88/utils/file-upload";
+import { FileUploadHelper } from "@bolt/core/file-upload";
 
 // Streaming
-import { StreamingHelper } from "@sebamar88/utils/streaming";
+import { StreamingHelper } from "@bolt/core/streaming";
 
 // WebSocket
-import { WebSocketHelper } from "@sebamar88/utils/websocket";
+import { WebSocketHelper } from "@bolt/core/websocket";
 
 // Array Utilities
-import { ArrayUtils } from "@sebamar88/utils/array-utils";
+import { ArrayUtils } from "@bolt/core/array-utils";
 
 // Object Utilities
-import { ObjectUtils } from "@sebamar88/utils/object-utils";
+import { ObjectUtils } from "@bolt/core/object-utils";
 
 // Form Utilities
-import { FormUtils, createForm } from "@sebamar88/utils/form-utils";
+import { FormUtils, createForm } from "@bolt/core/form-utils";
 
 // Time Utilities
-import { TimeUtils } from "@sebamar88/utils/time-utils";
+import { TimeUtils } from "@bolt/core/time-utils";
 
 // Event Emitter
-import {
-    EventEmitter,
-    createEventEmitter,
-} from "@sebamar88/utils/event-emitter";
+import { EventEmitter, createEventEmitter } from "@bolt/core/event-emitter";
 
 // Diff Utilities
-import { DiffUtils } from "@sebamar88/utils/diff-utils";
+import { DiffUtils } from "@bolt/core/diff-utils";
 
 // Polling Helper
-import { PollingHelper, createPoller } from "@sebamar88/utils/polling-helper";
+import { PollingHelper, createPoller } from "@bolt/core/polling-helper";
 
 // Crypto Utilities
-import { CryptoUtils } from "@sebamar88/utils/crypto-utils";
+import { CryptoUtils } from "@bolt/core/crypto-utils";
 
 // Pagination Helper
 import {
     PaginationHelper,
     createPaginator,
-} from "@sebamar88/utils/pagination-helper";
+} from "@bolt/core/pagination-helper";
 
 // Cache Manager
-import {
-    CacheManager,
-    createCacheManager,
-} from "@sebamar88/utils/cache-manager";
+import { CacheManager, createCacheManager } from "@bolt/core/cache-manager";
 
 // Compression Utilities
-import { CompressionUtils } from "@sebamar88/utils/compression-utils";
+import { CompressionUtils } from "@bolt/core/compression-utils";
 ```
 
 #### Import Everything / Importar Todo
@@ -218,18 +207,13 @@ import {
     createPoller,
     createPaginator,
     createCacheManager,
-} from "@sebamar88/utils";
+} from "@bolt/core";
 ```
 
 ## Quick Start / Inicio rápido
 
 ```ts
-import {
-    ApiClient,
-    createLogger,
-    DateUtils,
-    StringUtils,
-} from "@sebamar88/utils";
+import { ApiClient, createLogger, DateUtils, StringUtils } from "@bolt/core";
 
 const http = new ApiClient({
     baseUrl: "https://api.my-service.com",
@@ -260,8 +244,8 @@ const slug = StringUtils.slugify("New Users – October 2024");
 
 ## API surface / Métodos expuestos
 
-**EN:** Complete reference of all exported methods and classes. Use `npm info @sebamar88/utils` to see the full list.  
-**ES:** Referencia completa de todos los métodos y clases exportados. Usa `npm info @sebamar88/utils` para ver la lista completa.
+**EN:** Complete reference of all exported methods and classes. Use `npm info @bolt/core` to see the full list.  
+**ES:** Referencia completa de todos los métodos y clases exportados. Usa `npm info @bolt/core` para ver la lista completa.
 
 ### Core Modules / Módulos Core
 
@@ -920,7 +904,7 @@ class CompressionUtils {
 
 ## API surface (pnpm info) / Métodos expuestos
 
-`pnpm info @sebamar88/utils readme` ahora lista todos los exports públicos:
+`pnpm info @bolt/core readme` ahora lista todos los exports públicos:
 
 ## ApiClient Details / Detalles del ApiClient
 
@@ -939,7 +923,7 @@ Each `request` (and `get`, `post`, `put`, `patch`, `delete`) accepts / Cada requ
 -   Native `RequestInit` fields (`headers`, `signal`, etc.).
 
 ```ts
-import { HttpError } from "@sebamar88/utils";
+import { HttpError } from "@bolt/core";
 
 try {
     await http.get("/users");
@@ -955,7 +939,7 @@ try {
 -   **getList**: **EN** fetch paginated data with built-in support for `pagination`, `sort`, and `filters`. Returns a typed `PaginatedResponse` with metadata. **ES** obtiene datos paginados con soporte para `pagination`, `sort` y `filters`. Devuelve `PaginatedResponse` con metadatos.
 
 ```ts
-import { ApiClient } from "@sebamar88/utils";
+import { ApiClient } from "@bolt/core";
 
 const api = new ApiClient({ baseUrl: "https://api.example.com" });
 
@@ -993,7 +977,7 @@ const filtered = await api.getList<User>("/users", {
 -   **CircuitBreaker**: **EN** prevent cascading failures by stopping requests when service is down. **ES** evita fallos en cascada deteniendo requests cuando el servicio está caído.
 
 ```ts
-import { ApiClient } from "@sebamar88/utils";
+import { ApiClient } from "@bolt/core";
 
 const api = new ApiClient({
     baseUrl: "https://api.example.com",
@@ -1018,7 +1002,7 @@ const data = await api.get("/users");
 -   **ResponseValidator**: **EN** validate API responses against schemas before using them. **ES** valida respuestas de API contra esquemas antes de usarlas.
 
 ```ts
-import { ApiClient, ValidationSchema } from "@sebamar88/utils";
+import { ApiClient, ValidationSchema } from "@bolt/core";
 
 const userSchema: ValidationSchema = {
     type: "object",
@@ -1042,7 +1026,7 @@ const users = await api.get<User[]>("/users", {
 -   **FileUploadHelper**: **EN** upload files with progress tracking, chunking, and retry support. **ES** sube archivos con seguimiento de progreso, chunking y reintentos.
 
 ```ts
-import { FileUploadHelper } from "@sebamar88/utils";
+import { FileUploadHelper } from "@bolt/core";
 
 const file = document.querySelector<HTMLInputElement>("#file")?.files?.[0];
 if (file) {
@@ -1071,7 +1055,7 @@ if (file) {
 -   **StreamingHelper**: **EN** stream JSON lines, Server-Sent Events, or download files with progress. **ES** transmite JSON lines, Server-Sent Events o descarga archivos con progreso.
 
 ```ts
-import { StreamingHelper } from "@sebamar88/utils";
+import { StreamingHelper } from "@bolt/core";
 
 // Stream JSON lines (NDJSON)
 const { data, complete } = await StreamingHelper.streamJsonLines<User>(
@@ -1102,7 +1086,7 @@ const blob = await StreamingHelper.downloadStream("/api/export.csv", {
 -   **WebSocketHelper**: **EN** manage WebSocket connections with auto-reconnect, heartbeat, and typed messages. **ES** gestiona conexiones WebSocket con reconexión automática, heartbeat y mensajes tipados.
 
 ```ts
-import { WebSocketHelper } from "@sebamar88/utils";
+import { WebSocketHelper } from "@bolt/core";
 
 const ws = new WebSocketHelper("wss://api.example.com/ws", {
     reconnect: true,
@@ -1138,7 +1122,7 @@ ws.close();
 -   **RequestCache**: **EN** cache HTTP responses with TTL and stale-while-revalidate support. **ES** cachea respuestas HTTP con TTL y soporte para stale-while-revalidate.
 
 ```ts
-import { RequestCache } from "@sebamar88/utils";
+import { RequestCache } from "@bolt/core";
 
 const cache = new RequestCache({
     ttl: 5 * 60 * 1000, // 5 minutes
@@ -1173,7 +1157,7 @@ console.log(`Hit rate: ${stats.hitRate * 100}%`);
 -   **SlidingWindowRateLimiter**: **EN** sliding window rate limiter for precise rate control. **ES** limitador de ventana deslizante para control preciso de tasa.
 
 ```ts
-import { RateLimiter, SlidingWindowRateLimiter } from "@sebamar88/utils";
+import { RateLimiter, SlidingWindowRateLimiter } from "@bolt/core";
 
 // Token bucket limiter (allows bursts)
 const limiter = new RateLimiter({
@@ -1208,7 +1192,7 @@ if (slidingLimiter.isAllowed("https://api.example.com/users")) {
 -   **RequestDeduplicator**: **EN** deduplicate in-flight requests to avoid redundant API calls. **ES** deduplica requests en vuelo para evitar llamadas redundantes.
 
 ```ts
-import { RequestDeduplicator } from "@sebamar88/utils";
+import { RequestDeduplicator } from "@bolt/core";
 
 const dedup = new RequestDeduplicator();
 
@@ -1237,7 +1221,7 @@ console.log(`In-flight: ${dedup.getInFlightCount()}`);
 -   **ObjectUtils**: **EN** everyday object manipulation utilities (isEmpty, deepClone, merge, pick, omit, flatten, groupBy, etc.). **ES** utilidades cotidianas para manipular objetos.
 
 ```ts
-import { ObjectUtils } from "@sebamar88/utils";
+import { ObjectUtils } from "@bolt/core";
 
 // Check if empty
 ObjectUtils.isEmpty(null); // true
@@ -1296,7 +1280,7 @@ ObjectUtils.deepEqual({ a: 1 }, { a: 1 }); // true
 -   **ArrayUtils**: **EN** everyday array manipulation utilities (chunk, flatten, unique, shuffle, zip, partition, etc.). **ES** utilidades cotidianas para manipular arrays.
 
 ```ts
-import { ArrayUtils } from "@sebamar88/utils";
+import { ArrayUtils } from "@bolt/core";
 
 // Chunk array into smaller pieces
 ArrayUtils.chunk([1, 2, 3, 4, 5], 2); // [[1, 2], [3, 4], [5]]
@@ -1361,7 +1345,7 @@ import {
     NotFoundError,
     TimeoutError,
     RateLimitError,
-} from "@sebamar88/utils";
+} from "@bolt/core";
 
 // Create error boundary with custom config
 const boundary = new ErrorBoundary({
@@ -1428,7 +1412,7 @@ console.log(report);
 // }
 
 // Use global error boundary
-import { getGlobalErrorBoundary } from "@sebamar88/utils";
+import { getGlobalErrorBoundary } from "@bolt/core";
 
 const globalBoundary = getGlobalErrorBoundary({
     maxRetries: 2,
@@ -1468,7 +1452,7 @@ try {
 -   **FormUtils**: **EN** form validation and state management with built-in validators, async validation, and framework-agnostic design. **ES** validación de formularios y gestión de estado con validadores integrados, validación async y agnóstico del framework.
 
 ```ts
-import { FormUtils, createForm, Validators } from "@sebamar88/utils";
+import { FormUtils, createForm, Validators } from "@bolt/core";
 
 // Create form with validation rules
 const form = new FormUtils({
@@ -1584,7 +1568,7 @@ withTiming,
 createStopwatch,
 StorageManager,
 EnvManager,
-} from "@sebamar88/utils";
+} from "@bolt/core";
 
 const logger = createLogger({ namespace: "payments", level: "debug" });
 
@@ -1614,7 +1598,7 @@ const apiKey = env.require("API_KEY");
     **ES**: Cliente HTTP tipado con reintentos, errores localizados, interceptores y `fetch` personalizable para Node/navegadores.
 
 ```ts
-import { ApiClient } from "@sebamar88/utils";
+import { ApiClient } from "@bolt/core";
 
 const api = new ApiClient({
     baseUrl: "https://api.example.com",
@@ -1632,7 +1616,7 @@ const user = await api.get("/users/1", {
     **ES**: Logger estructurado con niveles, namespaces, transports para Node/browser y loggers hijos.
 
 ```ts
-import { createLogger } from "@sebamar88/utils";
+import { createLogger } from "@bolt/core";
 
 const logger = createLogger({ namespace: "payments", level: "info" });
 logger.warn("payment delayed", { id: "tx_1" });
@@ -1652,7 +1636,7 @@ import {
     withTiming,
     measureAsync,
     Profiler,
-} from "@sebamar88/utils";
+} from "@bolt/core";
 
 const stopwatch = createStopwatch({ label: "sync-users" });
 // ... run task
@@ -1751,7 +1735,7 @@ Validator.isLocalPhone("11 5555-7777", "es-AR");
     **ES**: Sistema de eventos pub/sub con listeners síncronos/asíncronos, listeners únicos, manejo de errores y seguimiento.
 
 ```ts
-import { EventEmitter, createEventEmitter } from "@sebamar88/utils";
+import { EventEmitter, createEventEmitter } from "@bolt/core";
 
 // Create event emitter with typed events
 const emitter = new EventEmitter<{
@@ -1799,7 +1783,7 @@ const events = createEventEmitter<{ message: string }>();
     **ES**: Comparación profunda de objetos, generación/aplicación de parches y estrategias de merge para rastrear cambios.
 
 ```ts
-import { DiffUtils } from "@sebamar88/utils";
+import { DiffUtils } from "@bolt/core";
 
 // Detect changes
 const old = { name: "John", age: 30, email: "john@example.com" };
@@ -1838,7 +1822,7 @@ DiffUtils.deepEqual({ a: { b: 1 } }, { a: { b: 2 } }); // false
     **ES**: Polling inteligente con backoff exponencial, condiciones de parada e intentos máximos para operaciones async.
 
 ```ts
-import { PollingHelper, createPoller } from "@sebamar88/utils";
+import { PollingHelper, createPoller } from "@bolt/core";
 
 // Poll until condition is met
 const poller = new PollingHelper(
@@ -1883,7 +1867,7 @@ const filePoller = createPoller(
     **ES**: Generación de tokens/UUIDs, codificación base64, hashing, HMAC y comparación en tiempo constante para seguridad.
 
 ```ts
-import { CryptoUtils } from "@sebamar88/utils";
+import { CryptoUtils } from "@bolt/core";
 
 // Generate secure tokens
 const token = CryptoUtils.generateToken(32); // 64 hex chars
@@ -1914,7 +1898,7 @@ const signature = await CryptoUtils.hmac("message", "secret");
     **ES**: Paginación offset-limit y basada en cursores con seguimiento de estado y navegación.
 
 ```ts
-import { PaginationHelper, createPaginator } from "@sebamar88/utils";
+import { PaginationHelper, createPaginator } from "@bolt/core";
 
 const items = Array.from({ length: 100 }, (_, i) => ({ id: i + 1 }));
 
@@ -1968,7 +1952,7 @@ const userPaginator = createPaginator(users, { pageSize: 20 });
     **ES**: Cache multi-nivel (memoria + localStorage) con TTL, evicción LRU y estadísticas para optimización de rendimiento.
 
 ```ts
-import { CacheManager, createCacheManager } from "@sebamar88/utils";
+import { CacheManager, createCacheManager } from "@bolt/core";
 
 const cache = new CacheManager({
     maxSize: 100, // Max entries
@@ -2022,7 +2006,7 @@ const apiCache = createCacheManager({ maxSize: 50 });
     **ES**: Compresión de strings, codificación base64, minificación JSON y soporte gzip/deflate para optimización de datos.
 
 ```ts
-import { CompressionUtils } from "@sebamar88/utils";
+import { CompressionUtils } from "@bolt/core";
 
 // Compress and decompress
 const original = "Hello World Hello World Hello World";
@@ -2081,7 +2065,7 @@ npx sutils create users
 
 **What is generated / Qué se genera:**
 
--   `api/<resource>/index.ts`: typed CRUD helpers built on `@sebamar88/utils`' `ApiClient`, including shape placeholders, filter helpers, and `list/get/create/update/delete` functions.
+-   `api/<resource>/index.ts`: typed CRUD helpers built on `@bolt/core`' `ApiClient`, including shape placeholders, filter helpers, and `list/get/create/update/delete` functions.
 -   `hooks/<resource>/use<ResourcePlural>.ts`: React Query hooks (`use<ResourcePlural>`, `use<Resource>`, `useCreate<Resource>`, `useUpdate<Resource>`, `useDelete<Resource>`) that invalidate the corresponding queries and wire mutations to `@tanstack/react-query`.
 -   `hooks/<resource>/index.ts`: re-exports the generated hooks.
 
@@ -2214,6 +2198,41 @@ npm run test
 -   `.kiro/TYPESCRIPT_COMPATIBILITY.md` - Full compatibility matrix and migration paths
 -   `.kiro/MULTI_VERSION_TEST_REPORT.md` - Detailed test results and performance metrics
 -   `.kiro/TYPESCRIPT_TESTING_SUMMARY.md` - Summary of testing methodology
+
+## Migration from @sebamar88/utils / Migración desde @sebamar88/utils
+
+**EN:** If you were using `@sebamar88/utils`, simply update your package name to `@bolt/core`. No code changes are required—all APIs remain the same.
+
+**ES:** Si estabas usando `@sebamar88/utils`, simplemente actualiza el nombre del paquete a `@bolt/core`. No se requieren cambios de código—todas las APIs permanecen igual.
+
+### Before / Antes
+
+```bash
+npm install @sebamar88/utils
+```
+
+```typescript
+import { ApiClient, DateUtils } from "@sebamar88/utils";
+```
+
+### After / Después
+
+```bash
+npm install @bolt/core
+```
+
+```typescript
+import { ApiClient, DateUtils } from "@bolt/core";
+```
+
+### Version History / Historial de Versiones
+
+-   **v0.1.10+** - `@bolt/core` (current)
+-   **v0.1.9 and earlier** - `@sebamar88/utils` (deprecated)
+
+**EN:** The package was renamed from `@sebamar88/utils` to `@bolt/core` starting with v0.1.10. All functionality remains the same.
+
+**ES:** El paquete fue renombrado de `@sebamar88/utils` a `@bolt/core` a partir de v0.1.10. Toda la funcionalidad permanece igual.
 
 ## License / Licencia
 

@@ -280,7 +280,7 @@ function buildApiTemplate(options: {
     route: string;
 }): string {
     const { pluralPascal, singularPascal, route } = options;
-    return `import type { ApiClient } from "@sebamar88/utils";
+    return `import type { ApiClient } from "@bolt/core";
 
 const RESOURCE_PATH = "${route}";
 
@@ -333,7 +333,7 @@ function buildHooksTemplate(options: {
     type UseMutationOptions,
     type UseQueryOptions,
 } from "@tanstack/react-query";
-import type { ApiClient } from "@sebamar88/utils";
+import type { ApiClient } from "@bolt/core";
 import {
     list${pascalPlural},
     get${pascalSingular},
