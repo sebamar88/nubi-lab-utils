@@ -1,18 +1,30 @@
 import { useState, useEffect } from "react";
 import { createApiClient } from "bytekit";
+import type { ApiClientConfig } from "bytekit";
 import "./styles.css";
 
 // Custom hook for API client
-function useApiClient(config) {
+function useApiClient(config: ApiClientConfig) {
     const [client] = useState(() => createApiClient(config));
     return client;
 }
 
+interface User {
+    id: number;
+    name: string;
+    email: string;
+    phone: string;
+    website: string;
+}
+
 // Custom hook for data fetching
-function useApiQuery(client, url) {
-    const [data, setData] = useState(null);
+function useApiQuery<T>(
+    client: ReturnType<typeof createApiClient>,
+    url: string
+) {
+    const [data, setData] = useState<T | null>(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         let cancelled = false;
@@ -20,14 +32,16 @@ function useApiQuery(client, url) {
         async function fetchData() {
             try {
                 setLoading(true);
-                const response = await client.get(url);
+                const response = await client.get<T>(url);
                 if (!cancelled) {
                     setData(response);
                     setError(null);
                 }
             } catch (err) {
                 if (!cancelled) {
-                    setError(err.message);
+                    setError(
+                        err instanceof Error ? err.message : "Unknown error"
+                    );
                 }
             } finally {
                 if (!cancelled) {
@@ -49,15 +63,15 @@ function useApiQuery(client, url) {
 export default function App() {
     const client = useApiClient({
         baseUrl: "https://jsonplaceholder.typicode.com",
-        timeout: 5000,
-        retry: { maxRetries: 3 },
+        timeoutMs: 5000,
+        retryPolicy: { maxRetries: 3 },
     });
 
-    const { data, loading, error } = useApiQuery(client, "/users/1");
+    const { data, loading, error } = useApiQuery<User>(client, "/users/1");
 
     return (
         <div className="App">
-            <h1>🚀 Bytekit + React</h1>
+            <h1>🚀 Bytekit + React + TypeScript</h1>
             <p className="subtitle">
                 Framework-agnostic TypeScript utilities for modern development
             </p>
@@ -90,9 +104,9 @@ export default function App() {
             <div className="features">
                 <h3>Features</h3>
                 <ul>
-                    <li>✅ Custom React hooks (useApiClient, useApiQuery)</li>
+                    <li>✅ Custom React hooks with TypeScript</li>
                     <li>✅ Automatic retry logic with exponential backoff</li>
-                    <li>✅ TypeScript support out of the box</li>
+                    <li>✅ Full type safety out of the box</li>
                     <li>✅ Loading and error state management</li>
                     <li>✅ Works with React Query, SWR, and more</li>
                 </ul>

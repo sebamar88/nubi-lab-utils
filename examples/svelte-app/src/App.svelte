@@ -1,22 +1,30 @@
-<script>
+<script lang="ts">
   import { onMount } from 'svelte';
   import { createApiClient } from 'bytekit';
 
+  interface User {
+    id: number;
+    name: string;
+    email: string;
+    phone: string;
+    website: string;
+  }
+
   const client = createApiClient({
     baseUrl: 'https://jsonplaceholder.typicode.com',
-    timeout: 5000,
-    retry: { maxRetries: 3 }
+    timeoutMs: 5000,
+    retryPolicy: { maxRetries: 3 }
   });
 
-  let data = null;
+  let data: User | null = null;
   let loading = true;
-  let error = null;
+  let error: string | null = null;
 
   onMount(async () => {
     try {
-      data = await client.get('/users/1');
+      data = await client.get<User>('/users/1');
     } catch (err) {
-      error = err.message;
+      error = err instanceof Error ? err.message : 'Unknown error';
     } finally {
       loading = false;
     }

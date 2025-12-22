@@ -1,17 +1,17 @@
 {
-    "name": "bytekit-react-example",
+    "name": "bytekit-react-typescript-example",
     "version": "1.0.0",
-    "description": "Bytekit + React example with custom hooks",
+    "description": "Bytekit + React + TypeScript example with custom hooks",
     "keywords": [
         "bytekit",
         "react",
+        "typescript",
         "hooks",
-        "http-client",
-        "typescript"
+        "http-client"
     ],
-    "main": "src/index.js",
+    "main": "src/index.tsx",
     "dependencies": {
-        "bytekit": "latest",
+        "bytekit": "^0.2.1",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
         "react-scripts": "5.0.1"

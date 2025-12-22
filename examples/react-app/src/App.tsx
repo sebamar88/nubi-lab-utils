@@ -1,16 +1,28 @@
 import { useState, useEffect } from "react";
 import { createApiClient } from "bytekit";
+import type { ApiClientConfig } from "bytekit";
+
+interface User {
+    id: number;
+    name: string;
+    email: string;
+    phone: string;
+    website: string;
+}
 
 // Custom hook pattern
-function useApiClient(config) {
+function useApiClient(config: ApiClientConfig) {
     const [client] = useState(() => createApiClient(config));
     return client;
 }
 
-function useApiQuery(client, url) {
-    const [data, setData] = useState(null);
+function useApiQuery<T>(
+    client: ReturnType<typeof createApiClient>,
+    url: string
+) {
+    const [data, setData] = useState<T | null>(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         let cancelled = false;
@@ -18,14 +30,16 @@ function useApiQuery(client, url) {
         async function fetchData() {
             try {
                 setLoading(true);
-                const response = await client.get(url);
+                const response = await client.get<T>(url);
                 if (!cancelled) {
                     setData(response);
                     setError(null);
                 }
             } catch (err) {
                 if (!cancelled) {
-                    setError(err.message);
+                    setError(
+                        err instanceof Error ? err.message : "Unknown error"
+                    );
                 }
             } finally {
                 if (!cancelled) {
@@ -51,7 +65,7 @@ export default function App() {
         retry: { maxRetries: 3 },
     });
 
-    const { data, loading, error } = useApiQuery(client, "/users/1");
+    const { data, loading, error } = useApiQuery<User>(client, "/users/1");
 
     return (
         <div style={{ padding: "2rem", fontFamily: "system-ui" }}>

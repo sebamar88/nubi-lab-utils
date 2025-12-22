@@ -20,16 +20,24 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useApiClient, useApiQuery } from "./composables/useApi";
+
+interface User {
+    id: number;
+    name: string;
+    email: string;
+    phone: string;
+    website: string;
+}
 
 const client = useApiClient({
     baseUrl: "https://jsonplaceholder.typicode.com",
-    timeout: 5000,
-    retry: { maxRetries: 3 },
+    timeoutMs: 5000,
+    retryPolicy: { maxRetries: 3 },
 });
 
-const { data, loading, error } = useApiQuery(client, "/users/1");
+const { data, loading, error } = useApiQuery<User>(client, "/users/1");
 </script>
 
 <style scoped>
