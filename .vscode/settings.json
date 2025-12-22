@@ -1,4 +1,5 @@
 {
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "kiroAgent.configureMCP": "Disabled"
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "kiroAgent.configureMCP": "Disabled",
+    "javascript.autoClosingTags": false
 }

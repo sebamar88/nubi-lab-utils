@@ -1,0 +1,74 @@
+<script>
+  import { onMount } from 'svelte';
+  import { createApiClient } from 'bytekit';
+
+  const client = createApiClient({
+    baseURL: 'https://jsonplaceholder.typicode.com',
+    timeout: 5000,
+    retry: { maxRetries: 3 }
+  });
+
+  let data = null;
+  let loading = true;
+  let error = null;
+
+  onMount(async () => {
+    try {
+      data = await client.get('/users/1');
+    } catch (err) {
+      error = err.message;
+    } finally {
+      loading = false;
+    }
+  });
+</script>
+
+<div class="container">
+  <h1>🚀 Bytekit + Svelte</h1>
+  
+  <div class="example">
+    <h2>API Client Example</h2>
+    
+    {#if loading}
+      <p>Loading...</p>
+    {:else if error}
+      <p class="error">Error: {error}</p>
+    {:else if data}
+      <pre class="result">{JSON.stringify(data, null, 2)}</pre>
+    {/if}
+  </div>
+
+  <div class="features">
+    <p>✅ Svelte reactive stores</p>
+    <p>✅ Simple and clean API</p>
+    <p>✅ TypeScript ready</p>
+  </div>
+</div>
+
+<style>
+  .container {
+    padding: 2rem;
+    font-family: system-ui;
+  }
+
+  .example {
+    margin-top: 2rem;
+  }
+
+  .error {
+    color: red;
+  }
+
+  .result {
+    background: #f5f5f5;
+    padding: 1rem;
+    border-radius: 8px;
+    overflow: auto;
+  }
+
+  .features {
+    margin-top: 2rem;
+    font-size: 0.9rem;
+    color: #666;
+  }
+</style>

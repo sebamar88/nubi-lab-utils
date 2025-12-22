@@ -90,10 +90,7 @@ import { RateLimiter, SlidingWindowRateLimiter } from "bytekit/rate-limiter";
 import { RequestDeduplicator } from "bytekit/request-deduplicator";
 
 // Error Boundary
-import {
-    ErrorBoundary,
-    getGlobalErrorBoundary,
-} from "bytekit/error-boundary";
+import { ErrorBoundary, getGlobalErrorBoundary } from "bytekit/error-boundary";
 ```
 
 #### Helper Modules / Módulos Helpers
@@ -148,16 +145,22 @@ import { PollingHelper, createPoller } from "bytekit/polling-helper";
 import { CryptoUtils } from "bytekit/crypto-utils";
 
 // Pagination Helper
-import {
-    PaginationHelper,
-    createPaginator,
-} from "bytekit/pagination-helper";
+import { PaginationHelper, createPaginator } from "bytekit/pagination-helper";
 
 // Cache Manager
 import { CacheManager, createCacheManager } from "bytekit/cache-manager";
 
 // Compression Utilities
 import { CompressionUtils } from "bytekit/compression-utils";
+
+// HTTP Status Helper
+import { HTTP_STATUS, isSuccess, isRetryable } from "bytekit/http-status";
+
+// URL Builder
+import { UrlBuilder, createUrlBuilder } from "bytekit/url-builder";
+
+// Batch Request
+import { BatchRequest, createBatchRequest } from "bytekit/batch-request";
 ```
 
 #### Import Everything / Importar Todo
@@ -241,6 +244,109 @@ const slug = StringUtils.slugify("New Users – October 2024");
 
 **EN:** Import everything from the root entry, configure the ApiClient once, reuse helpers everywhere.  
 **ES:** Importá desde la raíz, configurá el ApiClient una sola vez y reutilizá los helpers en todos tus servicios.
+
+## Framework Examples / Ejemplos con Frameworks
+
+**EN:** Bytekit is framework-agnostic and works seamlessly with React, Vue, Svelte, Angular, and more.  
+**ES:** Bytekit es agnóstico al framework y funciona perfectamente con React, Vue, Svelte, Angular y más.
+
+### 🎯 Works with / Compatible con
+
+<div align="center">
+
+**React** • **Vue** • **Svelte** • **Angular** • **Next.js** • **Nuxt** • **SvelteKit**
+
+</div>
+
+### 📚 Quick Examples / Ejemplos Rápidos
+
+#### React
+
+```jsx
+import { createApiClient } from "bytekit";
+import { useState, useEffect } from "react";
+
+function useApiClient(config) {
+    const [client] = useState(() => createApiClient(config));
+    return client;
+}
+
+function Users() {
+    const client = useApiClient({ baseURL: "https://api.example.com" });
+    const [users, setUsers] = useState([]);
+
+    useEffect(() => {
+        client.get("/users").then(setUsers);
+    }, [client]);
+
+    return (
+        <div>
+            {users.map((u) => (
+                <div key={u.id}>{u.name}</div>
+            ))}
+        </div>
+    );
+}
+```
+
+**[📖 Full React Guide](./docs/examples/react.md)** • **[💻 Working Example](./examples/react-app)**
+
+#### Vue 3
+
+```vue
+<script setup>
+import { ref, onMounted } from "vue";
+import { createApiClient } from "bytekit";
+
+const client = createApiClient({ baseURL: "https://api.example.com" });
+const users = ref([]);
+
+onMounted(async () => {
+    users.value = await client.get("/users");
+});
+</script>
+
+<template>
+    <div v-for="user in users" :key="user.id">{{ user.name }}</div>
+</template>
+```
+
+**[📖 Full Vue Guide](./docs/examples/vue.md)** • **[💻 Working Example](./examples/vue-app)**
+
+#### Svelte
+
+```svelte
+<script>
+  import { onMount } from 'svelte';
+  import { createApiClient } from 'bytekit';
+
+  const client = createApiClient({ baseURL: 'https://api.example.com' });
+  let users = [];
+
+  onMount(async () => {
+    users = await client.get('/users');
+  });
+</script>
+
+{#each users as user}
+  <div>{user.name}</div>
+{/each}
+```
+
+**[📖 Full Svelte Guide](./docs/examples/svelte.md)** • **[💻 Working Example](./examples/svelte-app)**
+
+### 🚀 Try the Examples / Probá los Ejemplos
+
+**EN:** Each example is a standalone Vite app ready to run:  
+**ES:** Cada ejemplo es una app Vite lista para ejecutar:
+
+```bash
+cd examples/react-app    # or vue-app, svelte-app
+npm install
+npm run dev
+```
+
+**[📁 View all examples](./examples)**
 
 ## API surface / Métodos expuestos
 
@@ -1631,12 +1737,7 @@ workerLogger.debug("processing batch", { size: 20 });
     **ES**: `createStopwatch`, `withTiming`, `measureAsync`, `captureDebug` y `Profiler` facilitan medir tiempos y loguear automáticamente.
 
 ```ts
-import {
-    createStopwatch,
-    withTiming,
-    measureAsync,
-    Profiler,
-} from "bytekit";
+import { createStopwatch, withTiming, measureAsync, Profiler } from "bytekit";
 
 const stopwatch = createStopwatch({ label: "sync-users" });
 // ... run task
@@ -2066,15 +2167,82 @@ npx sutils create users
 **What is generated / Qué se genera:**
 
 -   `api/<resource>/index.ts`: typed CRUD helpers built on `bytekit`' `ApiClient`, including shape placeholders, filter helpers, and `list/get/create/update/delete` functions.
--   `hooks/<resource>/use<ResourcePlural>.ts`: React Query hooks (`use<ResourcePlural>`, `use<Resource>`, `useCreate<Resource>`, `useUpdate<Resource>`, `useDelete<Resource>`) that invalidate the corresponding queries and wire mutations to `@tanstack/react-query`.
+-   `hooks/<resource>/use<ResourcePlural>.ts`: Query library hooks (React Query or RTK Query, configurable via `--queryLib`) that invalidate the corresponding queries and wire mutations.
 -   `hooks/<resource>/index.ts`: re-exports the generated hooks.
 
-The generator accepts `--apiDir`, `--hooksDir`, `--route`, and `--force`; directories default to `api`/`hooks`, the route defaults to the resource name, and `--force` overwrites existing files. It also respects nested resource paths like `admin/users`.
+The generator accepts `--apiDir`, `--hooksDir`, `--route`, `--queryLib`, and `--force`; directories default to `api`/`hooks`, the route defaults to the resource name, `--queryLib` defaults to `react-query`, and `--force` overwrites existing files. It also respects nested resource paths like `admin/users`.
 
-React Query must be available in the consuming project (`npm install @tanstack/react-query`), and the hooks expect an `ApiClient` instance that you pass as the first argument.
+**Query Library Options / Opciones de Librería de Queries:**
+
+-   `--queryLib=react-query` (default): Generates hooks using `@tanstack/react-query` (React Query).
+-   `--queryLib=rtk-query`: Generates API slice using `@reduxjs/toolkit/query/react` (RTK Query).
+
+**Examples / Ejemplos:**
 
 ```bash
-npx sutils create payments --apiDir=services --hooksDir=app/hooks --route=/billing/payments --force
+# Create with React Query (default)
+npx sutils create users
+
+# Create with RTK Query
+npx sutils create users --queryLib=rtk-query
+
+# Create with custom directories and RTK Query
+npx sutils create payments --apiDir=services --hooksDir=app/hooks --route=/billing/payments --queryLib=rtk-query --force
+```
+
+**React Query Setup / Configuración de React Query:**
+
+React Query must be available in the consuming project:
+
+```bash
+npm install @tanstack/react-query
+```
+
+The generated hooks expect an `ApiClient` instance that you pass as the first argument:
+
+```ts
+import { useUsers } from "./hooks/users";
+import { apiClient } from "./api/client";
+
+export function UsersList() {
+    const { data, isLoading } = useUsers(apiClient);
+    // ...
+}
+```
+
+**RTK Query Setup / Configuración de RTK Query:**
+
+RTK Query must be available in the consuming project:
+
+```bash
+npm install @reduxjs/toolkit react-redux
+```
+
+The generated API slice should be added to your Redux store:
+
+```ts
+import { configureStore } from "@reduxjs/toolkit";
+import { userApi } from "./hooks/users";
+
+export const store = configureStore({
+    reducer: {
+        [userApi.reducerPath]: userApi.reducer,
+    },
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware().concat(userApi.middleware),
+});
+```
+
+Then use the generated hooks in your components:
+
+```ts
+import { useListUsersQuery, useCreateUserMutation } from "./hooks/users";
+
+export function UsersList() {
+    const { data, isLoading } = useListUsersQuery();
+    const [createUser] = useCreateUserMutation();
+    // ...
+}
 ```
 
 ### Types Command / Comando Types
@@ -2237,5 +2405,3 @@ import { ApiClient, DateUtils } from "bytekit";
 ## License / Licencia
 
 MIT © 2024 Sebastián Martinez
-
-

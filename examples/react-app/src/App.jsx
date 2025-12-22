@@ -1,0 +1,88 @@
+import { useState, useEffect } from "react";
+import { createApiClient } from "bytekit";
+
+// Custom hook pattern
+function useApiClient(config) {
+    const [client] = useState(() => createApiClient(config));
+    return client;
+}
+
+function useApiQuery(client, url) {
+    const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        async function fetchData() {
+            try {
+                setLoading(true);
+                const response = await client.get(url);
+                if (!cancelled) {
+                    setData(response);
+                    setError(null);
+                }
+            } catch (err) {
+                if (!cancelled) {
+                    setError(err.message);
+                }
+            } finally {
+                if (!cancelled) {
+                    setLoading(false);
+                }
+            }
+        }
+
+        fetchData();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [client, url]);
+
+    return { data, loading, error };
+}
+
+export default function App() {
+    const client = useApiClient({
+        baseURL: "https://jsonplaceholder.typicode.com",
+        timeout: 5000,
+        retry: { maxRetries: 3 },
+    });
+
+    const { data, loading, error } = useApiQuery(client, "/users/1");
+
+    return (
+        <div style={{ padding: "2rem", fontFamily: "system-ui" }}>
+            <h1>🚀 Bytekit + React</h1>
+
+            <div style={{ marginTop: "2rem" }}>
+                <h2>API Client Example</h2>
+
+                {loading && <p>Loading...</p>}
+                {error && <p style={{ color: "red" }}>Error: {error}</p>}
+                {data && (
+                    <pre
+                        style={{
+                            background: "#f5f5f5",
+                            padding: "1rem",
+                            borderRadius: "8px",
+                            overflow: "auto",
+                        }}
+                    >
+                        {JSON.stringify(data, null, 2)}
+                    </pre>
+                )}
+            </div>
+
+            <div
+                style={{ marginTop: "2rem", fontSize: "0.9rem", color: "#666" }}
+            >
+                <p>✅ ApiClient with retry logic</p>
+                <p>✅ Custom React hooks pattern</p>
+                <p>✅ TypeScript ready</p>
+            </div>
+        </div>
+    );
+}

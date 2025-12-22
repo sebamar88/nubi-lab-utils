@@ -11,6 +11,7 @@ type CreateFlags = {
     hooksDir?: string;
     route?: string;
     force?: boolean;
+    queryLib?: "react-query" | "rtk-query";
 };
 
 type ResourceConfig = {
@@ -19,6 +20,7 @@ type ResourceConfig = {
     force: boolean;
     resourceSegments: string[];
     route: string;
+    queryLib: "react-query" | "rtk-query";
 };
 
 export async function runCli(argv: string[]): Promise<void> {
@@ -63,6 +65,7 @@ async function handleCreate(
         force: Boolean(flags.force),
         route: flags.route ?? `/${resourceSegments.join("/")}`,
         resourceSegments,
+        queryLib: flags.queryLib ?? "react-query",
     };
 
     await createResourceFiles(config);
@@ -126,6 +129,15 @@ function parseCreateFlags(args: string[]): CreateFlags {
                 break;
             case "route":
                 flags.route = rawValue;
+                break;
+            case "queryLib":
+                if (rawValue === "react-query" || rawValue === "rtk-query") {
+                    flags.queryLib = rawValue;
+                } else {
+                    console.warn(
+                        `Invalid queryLib value "${rawValue}". Use "react-query" or "rtk-query".`
+                    );
+                }
                 break;
             default:
                 console.warn(`Unrecognized flag "--${key}"; ignoring.`);
@@ -226,12 +238,19 @@ async function createResourceFiles(config: ResourceConfig): Promise<void> {
 
     await writeFileIfAllowed(
         hooksFilePath,
-        buildHooksTemplate({
-            pascalPlural,
-            pascalSingular,
-            resourceKey,
-            apiImportPath,
-        }),
+        config.queryLib === "rtk-query"
+            ? buildRtkQueryHooksTemplate({
+                  pascalPlural,
+                  pascalSingular,
+                  resourceKey,
+                  apiImportPath,
+              })
+            : buildHooksTemplate({
+                  pascalPlural,
+                  pascalSingular,
+                  resourceKey,
+                  apiImportPath,
+              }),
         force
     );
 
@@ -313,6 +332,92 @@ export const update${singularPascal} = (
 
 export const delete${singularPascal} = (client: ApiClient, id: string) =>
     client.delete<void>(RESOURCE_PATH + "/" + id);
+
+`;
+}
+
+function buildRtkQueryHooksTemplate(options: {
+    pascalPlural: string;
+    pascalSingular: string;
+    resourceKey: string;
+    apiImportPath: string;
+}): string {
+    const { pascalPlural, pascalSingular, resourceKey, apiImportPath } =
+        options;
+
+    return `import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import type { ApiClient } from "bytekit";
+import {
+    list${pascalPlural},
+    get${pascalSingular},
+    create${pascalSingular},
+    update${pascalSingular},
+    delete${pascalSingular},
+    type ${pascalSingular}Dto,
+    type Create${pascalSingular}Dto,
+    type Update${pascalSingular}Dto,
+    type ${pascalSingular}Filters,
+} from "${apiImportPath}";
+
+const resourceKey = "${resourceKey}";
+
+export const ${pascalSingular.toLowerCase()}Api = createApi({
+    reducerPath: "${pascalSingular.toLowerCase()}Api",
+    baseQuery: fetchBaseQuery({
+        baseUrl: process.env.REACT_APP_API_URL || "",
+    }),
+    tagTypes: ["${pascalSingular}"],
+    endpoints: (builder) => ({
+        list${pascalPlural}: builder.query<${pascalSingular}Dto[], ${pascalSingular}Filters | undefined>({
+            query: (filters) => ({
+                url: resourceKey,
+                params: filters,
+            }),
+            providesTags: ["${pascalSingular}"],
+        }),
+        get${pascalSingular}: builder.query<${pascalSingular}Dto, string>({
+            query: (id) => \`\${resourceKey}/\${id}\`,
+            providesTags: (result, error, id) => [{ type: "${pascalSingular}", id }],
+        }),
+        create${pascalSingular}: builder.mutation<${pascalSingular}Dto, Create${pascalSingular}Dto>({
+            query: (payload) => ({
+                url: resourceKey,
+                method: "POST",
+                body: payload,
+            }),
+            invalidatesTags: ["${pascalSingular}"],
+        }),
+        update${pascalSingular}: builder.mutation<
+            ${pascalSingular}Dto,
+            { id: string; payload: Update${pascalSingular}Dto }
+        >({
+            query: ({ id, payload }) => ({
+                url: \`\${resourceKey}/\${id}\`,
+                method: "PATCH",
+                body: payload,
+            }),
+            invalidatesTags: (result, error, { id }) => [
+                { type: "${pascalSingular}", id },
+                "${pascalSingular}",
+            ],
+        }),
+        delete${pascalSingular}: builder.mutation<void, string>({
+            query: (id) => ({
+                url: \`\${resourceKey}/\${id}\`,
+                method: "DELETE",
+            }),
+            invalidatesTags: ["${pascalSingular}"],
+        }),
+    }),
+});
+
+export const {
+    useList${pascalPlural}Query,
+    useGet${pascalSingular}Query,
+    useCreate${pascalSingular}Mutation,
+    useUpdate${pascalSingular}Mutation,
+    useDelete${pascalSingular}Mutation,
+} = ${pascalSingular.toLowerCase()}Api;
 
 `;
 }
@@ -490,7 +595,13 @@ Options
   --apiDir=<dir>            Base directory for API files (default: api).
   --hooksDir=<dir>          Base directory for hooks (default: hooks).
   --route=</path>           API route path (default: derived from resource).
+  --queryLib=<lib>          Query library: "react-query" or "rtk-query" (default: react-query).
   --force                   Overwrite existing files.
+
+Examples
+  sutils create users
+  sutils create users --queryLib=rtk-query
+  sutils create posts --apiDir=src/api --hooksDir=src/hooks --force
 `);
 }
 
@@ -516,5 +627,3 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         process.exit(1);
     });
 }
-
-

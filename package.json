@@ -1,7 +1,7 @@
 {
     "name": "bytekit",
     "description": "Lightning-fast TypeScript utilities for modern development",
-    "version": "0.1.12",
+    "version": "0.2.0",
     "type": "module",
     "imports": {
         "#core/*": "./dist/utils/core/*",
@@ -133,10 +133,21 @@
         "./error-boundary": {
             "types": "./dist/utils/core/ErrorBoundary.d.ts",
             "import": "./dist/utils/core/ErrorBoundary.js"
+        },
+        "./batch-request": {
+            "types": "./dist/utils/core/BatchRequest.d.ts",
+            "import": "./dist/utils/core/BatchRequest.js"
+        },
+        "./http-status": {
+            "types": "./dist/utils/helpers/HttpStatusHelper.d.ts",
+            "import": "./dist/utils/helpers/HttpStatusHelper.js"
+        },
+        "./url-builder": {
+            "types": "./dist/utils/helpers/UrlBuilder.d.ts",
+            "import": "./dist/utils/helpers/UrlBuilder.js"
         }
     },
     "scripts": {
-        "postinstall": "node .kiro/tsconfig-generator.js",
         "build": "tsc -p tsconfig.json",
         "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true });\"",
         "lint": "tsc --noEmit",
