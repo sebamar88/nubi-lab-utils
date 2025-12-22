@@ -17,7 +17,7 @@ npm install bytekit
   import { createApiClient } from 'bytekit';
 
   const client = createApiClient({
-    baseURL: 'https://api.example.com',
+    baseUrl: 'https://api.example.com',
     timeout: 5000,
     retry: { maxRetries: 3 }
   });
@@ -37,7 +37,7 @@ Create a reusable store for your API client:
 import { createApiClient } from "bytekit";
 
 export const apiClient = createApiClient({
-    baseURL: "https://api.example.com",
+    baseUrl: "https://api.example.com",
 });
 ```
 
@@ -100,7 +100,7 @@ Usage:
 <script>
   import { createApiStore, createQueryStore } from './stores/api';
 
-  const client = createApiStore({ baseURL: 'https://api.example.com' });
+  const client = createApiStore({ baseUrl: 'https://api.example.com' });
   const users = createQueryStore(client, '/users');
 </script>
 
@@ -125,7 +125,7 @@ import { writable, derived } from "svelte/store";
 import { createApiClient } from "bytekit";
 
 const client = createApiClient({
-    baseURL: "https://api.example.com",
+    baseUrl: "https://api.example.com",
 });
 
 function createUsersStore() {
@@ -234,7 +234,7 @@ export const userCount = derived(users, ($users) => $users.items.length);
   import { onMount } from 'svelte';
   import { createApiClient } from 'bytekit';
 
-  const client = createApiClient({ baseURL: 'https://api.example.com' });
+  const client = createApiClient({ baseUrl: 'https://api.example.com' });
 
   let user = null;
   let errorMessage = '';
@@ -276,7 +276,7 @@ export const userCount = derived(users, ($users) => $users.items.length);
   }
 
   const client = createApiClient({
-    baseURL: 'https://api.example.com'
+    baseUrl: 'https://api.example.com'
   });
 
   const users: Writable<User[]> = writable([]);
@@ -300,7 +300,7 @@ Share API client across components:
   import UserList from './UserList.svelte';
 
   const client = createApiClient({
-    baseURL: 'https://api.example.com'
+    baseUrl: 'https://api.example.com'
   });
 
   setContext('apiClient', client);

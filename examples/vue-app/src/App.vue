@@ -24,7 +24,7 @@
 import { useApiClient, useApiQuery } from "./composables/useApi";
 
 const client = useApiClient({
-    baseURL: "https://jsonplaceholder.typicode.com",
+    baseUrl: "https://jsonplaceholder.typicode.com",
     timeout: 5000,
     retry: { maxRetries: 3 },
 });

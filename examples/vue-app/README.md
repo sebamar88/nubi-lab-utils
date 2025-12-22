@@ -28,7 +28,7 @@ Open http://localhost:5173
 import { createApiClient } from "bytekit";
 
 const client = createApiClient({
-    baseURL: "https://api.example.com",
+    baseUrl: "https://api.example.com",
 });
 </script>
 ```
@@ -75,7 +75,7 @@ export function useApiQuery(client, url) {
 import { useQuery } from "@tanstack/vue-query";
 import { createApiClient } from "bytekit";
 
-const client = createApiClient({ baseURL: "https://api.example.com" });
+const client = createApiClient({ baseUrl: "https://api.example.com" });
 
 const { data, isLoading, error } = useQuery({
     queryKey: ["user", 1],

@@ -17,7 +17,7 @@ npm install bytekit
 import { createApiClient } from "bytekit";
 
 const client = createApiClient({
-    baseURL: "https://api.example.com",
+    baseUrl: "https://api.example.com",
     timeout: 5000,
     retry: { maxRetries: 3 },
 });
@@ -49,7 +49,7 @@ Usage:
 import { useApiClient } from "@/composables/useApi";
 
 const client = useApiClient({
-    baseURL: "https://api.example.com",
+    baseUrl: "https://api.example.com",
 });
 
 async function fetchUsers() {
@@ -120,7 +120,7 @@ import { useApiClient, useApiQuery } from "@/composables/useApi";
 
 const props = defineProps(["userId"]);
 
-const client = useApiClient({ baseURL: "https://api.example.com" });
+const client = useApiClient({ baseUrl: "https://api.example.com" });
 const { data, loading, error } = useApiQuery(client, `/users/${props.userId}`);
 </script>
 ```
@@ -147,7 +147,7 @@ import { useQuery, useMutation } from "@tanstack/vue-query";
 import { createApiClient } from "bytekit";
 
 const client = createApiClient({
-    baseURL: "https://api.example.com",
+    baseUrl: "https://api.example.com",
 });
 
 // Fetch users
@@ -179,7 +179,7 @@ import App from "./App.vue";
 const app = createApp(App);
 
 const apiClient = createApiClient({
-    baseURL: "https://api.example.com",
+    baseUrl: "https://api.example.com",
 });
 
 app.provide("apiClient", apiClient);
@@ -232,7 +232,7 @@ import { useApiClient } from "@/composables/useApi";
 
 const props = defineProps(["userId"]);
 
-const client = useApiClient({ baseURL: "https://api.example.com" });
+const client = useApiClient({ baseUrl: "https://api.example.com" });
 const user = ref(null);
 const error = ref(null);
 const errorMessage = ref("");
@@ -268,7 +268,7 @@ interface User {
 }
 
 const client = createApiClient({
-    baseURL: "https://api.example.com",
+    baseUrl: "https://api.example.com",
 });
 
 const users = ref<User[]>([]);
@@ -295,7 +295,7 @@ import { defineStore } from "pinia";
 import { createApiClient } from "bytekit";
 
 const client = createApiClient({
-    baseURL: "https://api.example.com",
+    baseUrl: "https://api.example.com",
 });
 
 export const useUsersStore = defineStore("users", {

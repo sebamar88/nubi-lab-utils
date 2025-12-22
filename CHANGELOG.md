@@ -49,6 +49,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Installation errors related to `tsconfig-generator.js` postinstall script
 -   npm link issues in example projects
+-   **CRITICAL**: Fixed all examples and documentation to use correct `baseUrl` parameter (was incorrectly using `baseURL`)
+-   npm link issues in example projects
 
 ## [0.1.12] - 2024-12-21
 

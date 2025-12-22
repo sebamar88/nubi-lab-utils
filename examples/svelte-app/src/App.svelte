@@ -3,7 +3,7 @@
   import { createApiClient } from 'bytekit';
 
   const client = createApiClient({
-    baseURL: 'https://jsonplaceholder.typicode.com',
+    baseUrl: 'https://jsonplaceholder.typicode.com',
     timeout: 5000,
     retry: { maxRetries: 3 }
   });

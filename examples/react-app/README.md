@@ -29,7 +29,7 @@ import { useState } from "react";
 function App() {
     const [client] = useState(() =>
         createApiClient({
-            baseURL: "https://api.example.com",
+            baseUrl: "https://api.example.com",
         })
     );
 
@@ -71,7 +71,7 @@ function useApiQuery(client, url) {
 import { useQuery } from "@tanstack/react-query";
 import { createApiClient } from "bytekit";
 
-const client = createApiClient({ baseURL: "https://api.example.com" });
+const client = createApiClient({ baseUrl: "https://api.example.com" });
 
 function useUser(id) {
     return useQuery({

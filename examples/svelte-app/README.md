@@ -27,7 +27,7 @@ Open http://localhost:5173
   import { createApiClient } from 'bytekit';
 
   const client = createApiClient({
-    baseURL: 'https://api.example.com'
+    baseUrl: 'https://api.example.com'
   });
 </script>
 ```
@@ -67,7 +67,7 @@ export function createQueryStore(client, url) {
 <script>
   import { createApiStore, createQueryStore } from './stores/api';
 
-  const client = createApiStore({ baseURL: 'https://api.example.com' });
+  const client = createApiStore({ baseUrl: 'https://api.example.com' });
   const user = createQueryStore(client, '/users/1');
 </script>
 

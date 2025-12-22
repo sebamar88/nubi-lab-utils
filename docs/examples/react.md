@@ -19,7 +19,7 @@ import { useState } from "react";
 function App() {
     const [client] = useState(() =>
         createApiClient({
-            baseURL: "https://api.example.com",
+            baseUrl: "https://api.example.com",
             timeout: 5000,
             retry: { maxRetries: 3 },
         })
@@ -51,7 +51,7 @@ Usage:
 ```jsx
 function App() {
     const client = useApiClient({
-        baseURL: "https://api.example.com",
+        baseUrl: "https://api.example.com",
     });
 
     const handleFetch = async () => {
@@ -113,7 +113,7 @@ Usage:
 
 ```jsx
 function UserProfile({ userId }) {
-    const client = useApiClient({ baseURL: "https://api.example.com" });
+    const client = useApiClient({ baseUrl: "https://api.example.com" });
     const { data, loading, error } = useApiQuery(client, `/users/${userId}`);
 
     if (loading) return <div>Loading...</div>;
@@ -132,7 +132,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { createApiClient } from "bytekit";
 
 const client = createApiClient({
-    baseURL: "https://api.example.com",
+    baseUrl: "https://api.example.com",
 });
 
 function Users() {
@@ -195,7 +195,7 @@ Usage:
 // App.jsx
 function App() {
     return (
-        <ApiProvider config={{ baseURL: "https://api.example.com" }}>
+        <ApiProvider config={{ baseUrl: "https://api.example.com" }}>
             <UserList />
         </ApiProvider>
     );
@@ -218,7 +218,7 @@ function UserList() {
 
 ```jsx
 function UserProfile({ userId }) {
-    const client = useApiClient({ baseURL: "https://api.example.com" });
+    const client = useApiClient({ baseUrl: "https://api.example.com" });
     const [user, setUser] = useState(null);
     const [error, setError] = useState(null);
 
@@ -262,7 +262,7 @@ function useApiClient(config: ApiClientConfig) {
 }
 
 function UserList() {
-    const client = useApiClient({ baseURL: "https://api.example.com" });
+    const client = useApiClient({ baseUrl: "https://api.example.com" });
     const [users, setUsers] = useState<User[]>([]);
 
     useEffect(() => {

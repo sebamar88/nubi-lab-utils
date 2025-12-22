@@ -42,7 +42,7 @@ All frameworks use the same core API:
 import { createApiClient } from "bytekit";
 
 const client = createApiClient({
-    baseURL: "https://api.example.com",
+    baseUrl: "https://api.example.com",
     timeout: 5000,
     retry: { maxRetries: 3 },
 });

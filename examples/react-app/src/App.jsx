@@ -46,7 +46,7 @@ function useApiQuery(client, url) {
 
 export default function App() {
     const client = useApiClient({
-        baseURL: "https://jsonplaceholder.typicode.com",
+        baseUrl: "https://jsonplaceholder.typicode.com",
         timeout: 5000,
         retry: { maxRetries: 3 },
     });
