@@ -22,7 +22,7 @@
 
   onMount(async () => {
     try {
-      data = await client.get<User>('/users/1');
+      data = await client.get('/users/1') as User;
     } catch (err) {
       error = err instanceof Error ? err.message : 'Unknown error';
     } finally {

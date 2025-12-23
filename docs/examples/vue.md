@@ -2,6 +2,10 @@
 
 Bytekit integrates seamlessly with Vue 3's Composition API. Here are the recommended patterns.
 
+## 🚀 Quick Start
+
+**[Try it live on CodeSandbox →](https://codesandbox.io/p/devbox/df26fs)**
+
 ## Installation
 
 ```bash

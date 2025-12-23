@@ -2,6 +2,10 @@
 
 Bytekit works seamlessly with React. Here are the recommended patterns and best practices.
 
+## 🚀 Quick Start
+
+**[Try it live on CodeSandbox →](https://codesandbox.io/p/devbox/bytekit-react-example-gr2k2j)**
+
 ## Installation
 
 ```bash

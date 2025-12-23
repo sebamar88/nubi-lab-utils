@@ -26,8 +26,8 @@ export function createQueryStore<T>(
         update((state) => ({ ...state, loading: true }));
 
         try {
-            const data = await client.get<T>(url);
-            set({ data, loading: false, error: null });
+            const data = await client.get(url);
+            set({ data: data as T, loading: false, error: null });
         } catch (err) {
             set({
                 data: null,

@@ -31,9 +31,9 @@ function useApiQuery<T>(
         async function fetchData() {
             try {
                 setLoading(true);
-                const response = await client.get<T>(url);
+                const response = await client.get(url);
                 if (!cancelled) {
-                    setData(response);
+                    setData(response as T);
                     setError(null);
                 }
             } catch (err) {

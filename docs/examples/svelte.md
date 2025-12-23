@@ -2,6 +2,10 @@
 
 Bytekit works beautifully with Svelte's reactive stores. Here are the recommended patterns.
 
+## 🚀 Quick Start
+
+**[Try it live on CodeSandbox →](https://codesandbox.io/p/devbox/lxvghg)**
+
 ## Installation
 
 ```bash

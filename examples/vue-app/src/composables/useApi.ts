@@ -18,9 +18,9 @@ export function useApiQuery<T>(
     async function fetchData() {
         try {
             loading.value = true;
-            const response = await client.get<T>(url);
+            const response = await client.get(url);
             if (!cancelled) {
-                data.value = response;
+                data.value = response as T;
                 error.value = null;
             }
         } catch (err) {
