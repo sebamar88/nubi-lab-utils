@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { createApiClient } from "bytekit";
-import type { ApiClientConfig } from "bytekit";
 
 interface User {
     id: number;
@@ -11,7 +10,7 @@ interface User {
 }
 
 // Custom hook pattern
-function useApiClient(config: ApiClientConfig) {
+function useApiClient(config: Parameters<typeof createApiClient>[0]) {
     const [client] = useState(() => createApiClient(config));
     return client;
 }
@@ -61,8 +60,8 @@ function useApiQuery<T>(
 export default function App() {
     const client = useApiClient({
         baseUrl: "https://jsonplaceholder.typicode.com",
-        timeout: 5000,
-        retry: { maxRetries: 3 },
+        timeoutMs: 5000,
+        retryPolicy: { maxRetries: 3 },
     });
 
     const { data, loading, error } = useApiQuery<User>(client, "/users/1");

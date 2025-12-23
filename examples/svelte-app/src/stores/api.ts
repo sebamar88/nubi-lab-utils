@@ -1,8 +1,7 @@
 import { writable } from "svelte/store";
 import { createApiClient } from "bytekit";
-import type { ApiClientConfig } from "bytekit";
 
-export function createApiStore(config: ApiClientConfig) {
+export function createApiStore(config: Parameters<typeof createApiClient>[0]) {
     const client = createApiClient(config);
     return client;
 }

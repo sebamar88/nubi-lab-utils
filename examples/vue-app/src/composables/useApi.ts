@@ -1,8 +1,7 @@
 import { ref, onMounted, onUnmounted, Ref } from "vue";
 import { createApiClient } from "bytekit";
-import type { ApiClientConfig } from "bytekit";
 
-export function useApiClient(config: ApiClientConfig) {
+export function useApiClient(config: Parameters<typeof createApiClient>[0]) {
     const client = createApiClient(config);
     return client;
 }

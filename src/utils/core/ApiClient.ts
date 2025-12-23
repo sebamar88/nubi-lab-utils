@@ -1,8 +1,16 @@
 import crossFetch from "cross-fetch";
 import { Logger } from "#core/Logger.js";
 import { StringUtils } from "#helpers/StringUtils.js";
-import { RetryPolicy, CircuitBreaker, RetryConfig, CircuitBreakerConfig } from "#core/RetryPolicy.js";
-import { ResponseValidator, ValidationSchema } from "#core/ResponseValidator.js";
+import {
+    RetryPolicy,
+    CircuitBreaker,
+    RetryConfig,
+    CircuitBreakerConfig,
+} from "#core/RetryPolicy.js";
+import {
+    ResponseValidator,
+    ValidationSchema,
+} from "#core/ResponseValidator.js";
 
 export type QueryParamValue = string | number | boolean | null | undefined;
 export type QueryParam =
@@ -161,7 +169,7 @@ export class ApiClient {
         this.fetchImpl =
             fetchImpl ??
             (typeof globalThis.fetch === "function"
-                ? globalThis.fetch
+                ? globalThis.fetch.bind(globalThis)
                 : (crossFetch as any));
         this.locale = locale;
         this.errorMessages = errorMessages ?? {};
@@ -241,11 +249,7 @@ export class ApiClient {
         });
     }
     async request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-        const {
-            validateResponse,
-            skipRetry,
-            ...requestOptions
-        } = options;
+        const { validateResponse, skipRetry, ...requestOptions } = options;
 
         const executeRequest = async (): Promise<T> => {
             return this.circuitBreaker.execute(async () => {
@@ -280,7 +284,11 @@ export class ApiClient {
                 if (this.interceptors?.request)
                     [url, init] = await this.interceptors.request(url, init);
 
-                this.logger?.debug("HTTP Request", { method: rest.method, url, body });
+                this.logger?.debug("HTTP Request", {
+                    method: rest.method,
+                    url,
+                    body,
+                });
 
                 try {
                     const response = await this.withTimeout(
@@ -304,7 +312,8 @@ export class ApiClient {
                         return undefined as T;
                     }
 
-                    const contentType = finalResponse.headers.get("content-type") || "";
+                    const contentType =
+                        finalResponse.headers.get("content-type") || "";
                     let data: T;
 
                     if (/json/i.test(contentType)) {
@@ -315,10 +324,15 @@ export class ApiClient {
 
                     // Validate response if schema provided
                     if (validateResponse) {
-                        const errors = ResponseValidator.validate(data, validateResponse);
+                        const errors = ResponseValidator.validate(
+                            data,
+                            validateResponse
+                        );
                         if (errors.length > 0) {
                             throw new Error(
-                                `Response validation failed: ${errors.map((e) => e.message).join(", ")}`
+                                `Response validation failed: ${errors
+                                    .map((e) => e.message)
+                                    .join(", ")}`
                             );
                         }
                     }

@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
 import { createApiClient } from "bytekit";
-import type { ApiClientConfig } from "bytekit";
 import "./styles.css";
 
 // Custom hook for API client
-function useApiClient(config: ApiClientConfig) {
+function useApiClient(config: Parameters<typeof createApiClient>[0]) {
     const [client] = useState(() => createApiClient(config));
     return client;
 }
