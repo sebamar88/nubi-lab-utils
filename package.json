@@ -1,7 +1,7 @@
 {
   "name": "bytekit",
   "description": "Lightning-fast TypeScript utilities for modern development",
-  "version": "0.2.8",
+  "version": "1.0.0",
   "type": "module",
   "imports": {
     "#core/*": "./dist/utils/core/*",
@@ -153,8 +153,8 @@
     "lint": "eslint src tests",
     "lint:fix": "eslint src tests --fix",
     "format": "prettier --write \"src/**/*.{ts,js,json}\" \"tests/**/*.{ts,js,json}\"",
-    "test": "npm run lint && npm run build && node --test tests/**/*.test.js",
-    "test:coverage": "npm run build && node --experimental-test-coverage --test tests/**/*.test.js",
+    "test": "npm run lint && npm run build && node --test tests/*.test.js",
+    "test:coverage": "npm run build && node --experimental-test-coverage --test tests/*.test.js",
     "test:all": "pnpm run test",
     "wiki:generate": "node scripts/generate-wiki.js",
     "prepublishOnly": "pnpm run lint && pnpm run clean && pnpm run build"

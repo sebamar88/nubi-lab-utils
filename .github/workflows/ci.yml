@@ -65,7 +65,7 @@ jobs:
       run: pnpm run build
       
     - name: Run tests with coverage
-      run: node --experimental-test-coverage --test tests/**/*.test.js > coverage.txt 2>&1 || true
+      run: node --experimental-test-coverage --test tests/*.test.js > coverage.txt 2>&1 || true
       
     - name: Display coverage
       run: cat coverage.txt
