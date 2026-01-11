@@ -185,12 +185,13 @@ function parseTypesFlags(args: string[]): {
             case "name":
                 flags.name = rawValue;
                 break;
-            case "header":
+            case "header": {
                 const [headerKey, headerValue] = rawValue.split(":", 2);
                 if (headerKey && headerValue) {
                     flags.headers[headerKey.trim()] = headerValue.trim();
                 }
                 break;
+            }
             default:
                 console.warn(`Unrecognized flag "--${key}"; ignoring.`);
         }
@@ -617,7 +618,7 @@ Options
 Examples
   sutils types https://api.example.com/users
   sutils types https://api.example.com/users --output=user-types.ts --name=User
-  sutils types https://api.example.com/users --method=POST --header=Authorization:Bearer\ token
+  sutils types https://api.example.com/users --method=POST --header=Authorization:Bearer token
 `);
 }
 

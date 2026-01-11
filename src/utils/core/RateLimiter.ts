@@ -62,7 +62,7 @@ export class RateLimiter {
     getStats(url: string): RateLimiterStats {
         const key = this.keyGenerator(url);
         const now = Date.now();
-        let bucket = this.buckets.get(key);
+        const bucket = this.buckets.get(key);
 
         if (!bucket) {
             return {

@@ -150,14 +150,14 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true });\"",
-    "lint": "tsc --noEmit",
+    "lint": "eslint src tests",
+    "lint:fix": "eslint src tests --fix",
+    "format": "prettier --write \"src/**/*.{ts,js,json}\" \"tests/**/*.{ts,js,json}\"",
     "test": "npm run lint && npm run build && node --test tests/**/*.test.js",
-    "test:jest": "jest",
-    "test:jest:watch": "jest --watch",
-    "test:wiki": "jest tests/wiki",
-    "test:all": "npm run test && npm run test:jest",
+    "test:coverage": "npm run build && node --experimental-test-coverage --test tests/**/*.test.js",
+    "test:all": "pnpm run test",
     "wiki:generate": "node scripts/generate-wiki.js",
-    "prepublishOnly": "npm run lint && npm run clean && npm run build"
+    "prepublishOnly": "pnpm run lint && pnpm run clean && pnpm run build"
   },
   "files": [
     "dist",
@@ -191,12 +191,14 @@
     "cross-fetch": "^4.1.0"
   },
   "devDependencies": {
-    "@types/jest": "^30.0.0",
+    "@eslint/js": "^9.0.0",
     "@types/node": "^25.0.3",
+    "eslint": "^9.0.0",
     "fast-check": "^4.5.2",
-    "jest": "^30.2.0",
-    "ts-jest": "^29.4.6",
-    "typescript": "^5.9.3"
+    "globals": "^15.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.0.0"
   },
   "peerDependencies": {
     "typescript": ">=5.9.0"
